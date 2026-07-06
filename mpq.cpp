@@ -13,14 +13,20 @@ typedef union _RGBQUAD {
 	};
 }_RGBQUAD, * PRGBQUAD;
 DWORD WINAPI payload0(LPVOID lpParam) {
-	while (1) {
-		HDC hdc = GetDC(NULL);
-		int w = GetSystemMetrics(SM_CXSCREEN),
-			h = GetSystemMetrics(SM_CYSCREEN);
-		StretchBlt(hdc, 10, 10, w - 20, h - 20, hdc, 0, 0, w, h, SRCINVERT);
-		StretchBlt(hdc, -10, -10, w + 20, h + 20, hdc, 0, 0, w, h, SRCINVERT);
-		ReleaseDC(NULL, hdc);
-	}
+    int xs = GetSystemMetrics(SM_CXSCREEN);
+    int ys = GetSystemMetrics(SM_CYSCREEN);
+    int shake = 0;
+    while (true) {
+        HDC desktop = GetDC(NULL);
+        int offset = (shake % 1) - 1;
+        BitBlt(desktop, offset, offset, xs, ys, desktop, 0, 0, SRCERASE);
+        StretchBlt(desktop, -20, -20, xs + 40, ys + 40, desktop, 0, 0, xs, ys, SRCCOPY);
+        StretchBlt(desktop, 20, 20, xs - 40, ys - 40, desktop, 0, 0, xs, ys, SRCCOPY);
+        
+        ReleaseDC(0, desktop);
+        
+        shake++;
+    }
 }
 DWORD WINAPI payload1(LPVOID lpParam) {
 	HDC hdc = GetDC(0);

@@ -87,7 +87,6 @@ VOID WINAPI sound7() {
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
-	Sleep(1000);
 	sound1();
 	Sleep(30000);
 	sound2();

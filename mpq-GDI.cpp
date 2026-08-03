@@ -1,281 +1,190 @@
-#include <Windows.h>
+#include <windows.h>
+#include <iostream>
+#include <stdio.h>
+#include <string>
 #include <thread>
-#include <cstdlib>
 #include <cmath>
+#include <math.h>
+#define _USE_MATH_DEFINES 1
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "gdi32.lib")
 typedef union _RGBQUAD {
-	COLORREF rgb;
-	struct {
-		BYTE r;
-		BYTE g;
-		BYTE b;
-		BYTE Reserved;
-	};
-}_RGBQUAD, * PRGBQUAD;
-DWORD WINAPI payload0(LPVOID lpParam) {
-    int xs = GetSystemMetrics(SM_CXSCREEN);
-    int ys = GetSystemMetrics(SM_CYSCREEN);
-    int shake = 0;
-    while (true) {
-        HDC desktop = GetDC(NULL);
-        int offset = (shake % 1) - 1;
-        BitBlt(desktop, offset, offset, xs, ys, desktop, 0, 0, SRCERASE);
-        StretchBlt(desktop, -20, -20, xs + 40, ys + 40, desktop, 0, 0, xs, ys, SRCCOPY);
-        StretchBlt(desktop, 20, 20, xs - 40, ys - 40, desktop, 0, 0, xs, ys, SRCCOPY);
-        
-        ReleaseDC(0, desktop);
-        
-        shake++;
+    COLORREF rgb;
+    struct {
+        BYTE r;
+        BYTE g;
+        BYTE b;
+        BYTE Reserved;
+    };
+} _RGBQUAD, * PRGBQUAD;
+DWORD WINAPI shader1(LPVOID lpParam) {
+    while (1) {
+        HDC hdc = GetDC(0);
+        int x = GetSystemMetrics(0);
+        int y = GetSystemMetrics(1);
+        StretchBlt(hdc, -10, -10, x + 20, y + 20, hdc, 0, 0, x, y, SRCERASE);
+        StretchBlt(hdc, 10, 10, x - 20, y - 20, hdc, 0, 0, x, y, SRCERASE);
+        ReleaseDC(0, hdc);
     }
 }
-DWORD WINAPI payload1(LPVOID lpParam) {
-	HDC hdc = GetDC(0);
-	int w = GetSystemMetrics(0);
-	int h = GetSystemMetrics(1);
-	while (true)
-	{
-		hdc = GetDC(0);
-		BitBlt(hdc, 5, 5, w, h, hdc, 0, 0, SRCINVERT);
-		BitBlt(hdc, -5, -5, w, h, hdc, 0, 0, SRCINVERT);
-		ReleaseDC(GetDesktopWindow(), hdc);
-		DeleteDC(hdc);
-		Sleep(10);
-	}
-
+DWORD WINAPI shader2(LPVOID lpParam) {
+    HDC desk;
+    int sw, sh;
+    while (1) {
+        desk = GetDC(0);
+        sw = GetSystemMetrics(0);
+        sh = GetSystemMetrics(1);
+        StretchBlt(desk, -20, 0, sw + 40, sh, desk, 0, 0, sw, sh, SRCINVERT);
+        ReleaseDC(0, desk);
+        Sleep(4);
+    }
 }
-DWORD WINAPI payload2(LPVOID lpParam) {
-	HDC hdcScreen = GetDC(0), hdcMem = CreateCompatibleDC(hdcScreen);
-	INT w = GetSystemMetrics(0), h = GetSystemMetrics(1);
-	BITMAPINFO bmi = { 0 };
-	PRGBQUAD rgbScreen = { 0 };
-	bmi.bmiHeader.biSize = sizeof(BITMAPINFO);
-	bmi.bmiHeader.biBitCount = 32;
-	bmi.bmiHeader.biPlanes = 1;
-	bmi.bmiHeader.biWidth = w;
-	bmi.bmiHeader.biHeight = h;
-	HBITMAP hbmTemp = CreateDIBSection(hdcScreen, &bmi, NULL, (void**)&rgbScreen, NULL, NULL);
-	SelectObject(hdcMem, hbmTemp);
-	for (;;) {
-		hdcScreen = GetDC(0);
-		BitBlt(hdcMem, 0, 0, w, h, hdcScreen, 0, 0, SRCCOPY);
-		for (INT i = 0; i < w * h; i++) {
-			INT x = i % w, y = i / w;
-			rgbScreen[i].rgb = (x ^ y);
-		}
-		BitBlt(hdcScreen, 0, 0, w, h, hdcMem, 0, 0, SRCCOPY);
-		//Sleep(100);
-		ReleaseDC(NULL, hdcScreen); DeleteDC(hdcScreen);
-	}
+DWORD WINAPI shader3(LPVOID lpParam) {
+    HDC hdcScreen = GetDC(0), hdcMem = CreateCompatibleDC(hdcScreen);
+    INT w = GetSystemMetrics(0), h = GetSystemMetrics(1);
+    BITMAPINFO bmi = { 0 };
+    PRGBQUAD rgbScreen = { 0 };
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFO);
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biWidth = w;
+    bmi.bmiHeader.biHeight = h;
+    HBITMAP hbmTemp = CreateDIBSection(hdcScreen, &bmi, NULL, (void**)&rgbScreen, NULL, NULL);
+    SelectObject(hdcMem, hbmTemp);
+    for (;;) {
+        hdcScreen = GetDC(0);
+        BitBlt(hdcMem, 0, 0, w, h, hdcScreen, 0, 0, SRCERASE);
+        for (INT i = 0; i < w * h; i++) {
+            INT x = i % w, y = i / w;
+            rgbScreen[i].rgb = (x ^ y);
+        }
+        BitBlt(hdcScreen, 0, 0, w, h, hdcMem, 0, 0, SRCERASE);
+        ReleaseDC(NULL, hdcScreen); DeleteDC(hdcScreen);
+    }
 }
-DWORD WINAPI payload3(LPVOID lpParam) {
-	HDC hdc = GetDC(0);
-	int w = GetSystemMetrics(0);
-	int h = GetSystemMetrics(1);
-	while (true)
-	{
-		hdc = GetDC(0);
-		BitBlt(hdc, 30, 30, w, h, hdc, 0, 0, SRCINVERT);
-		BitBlt(hdc, -30, -30, w, h, hdc, 0, 0, SRCINVERT);
-		ReleaseDC(GetDesktopWindow(), hdc);
-		DeleteDC(hdc);
-		Sleep(10);
-	}
-
+DWORD WINAPI shader4(LPVOID lpParam) {
+    int w = GetSystemMetrics(0);
+    int h = GetSystemMetrics(1);
+    while (1) {
+        HDC hdc = GetDC(0);
+        BitBlt(hdc, -30, 0, w, h, hdc, 0, 0, SRCERASE);
+        BitBlt(hdc, w - 30, 0, w, h, hdc, 0, 0, SRCERASE);
+        ReleaseDC(0, hdc);
+    }
 }
-DWORD WINAPI payload4(LPVOID lpParam) {
-	while (1) {
-		HDC hdc = GetDC(NULL);
-		int w = GetSystemMetrics(SM_CXSCREEN),
-			h = GetSystemMetrics(SM_CYSCREEN);
-		StretchBlt(hdc, 20, 20, w - 40, h - 40, hdc, 0, 0, w, h, SRCINVERT);
-		StretchBlt(hdc, -20, -20, w + 40, h + 40, hdc, 0, 0, w, h, SRCINVERT);
-		ReleaseDC(NULL, hdc);
-	}
+DWORD WINAPI shader5(LPVOID lpParam) {
+    int time = GetTickCount();
+    int w = GetSystemMetrics(0), h = GetSystemMetrics(1);
+    RGBQUAD* data = (RGBQUAD*)VirtualAlloc(0, (w * h + w) * sizeof(RGBQUAD), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    for (int i = 0;; i++, i %= 3) {
+        HDC desk = GetDC(NULL);
+        HDC hdcdc = CreateCompatibleDC(desk);
+        HBITMAP hbm = CreateBitmap(w, h, 1, 32, data);
+        SelectObject(hdcdc, hbm);
+        BitBlt(hdcdc, 0, 0, w, h, desk, 0, 0, SRCERASE);
+        GetBitmapBits(hbm, 4 * h * w, data);
+        int v = 0;
+        BYTE byte = 0;
+        if ((GetTickCount() - time) > 10)
+            byte = rand() % 0xff;
+        for (int i = 0; w * h > i; ++i) {
+            if (!(i % h) && !(rand() % 110))
+                v = rand() % 24;
+            *((BYTE*)data + 4 * i + v) -= 5;
+        }
+        SetBitmapBits(hbm, w * h * 4, data);
+        BitBlt(desk, 0, 0, w, h, hdcdc, 0, 0, SRCERASE);
+        DeleteObject(hbm);
+        DeleteObject(hdcdc);
+        DeleteObject(desk);
+    }
 }
-DWORD WINAPI payload5(LPVOID lpParam) {
-	HDC hdc = GetDC(0);
-	int w = GetSystemMetrics(0);
-	int h = GetSystemMetrics(1);
-	while (true)
-	{
-		hdc = GetDC(0);
-		BitBlt(hdc, 1, 1, w, h, hdc, 0, 0, SRCINVERT);
-		BitBlt(hdc, -1, -1, w, h, hdc, 0, 0, SRCINVERT);
-		ReleaseDC(GetDesktopWindow(), hdc);
-		DeleteDC(hdc);
-		Sleep(10);
-	}
-
+DWORD WINAPI shader6(LPVOID lpParam) {
+    while (1) {
+        HDC hdc = GetDC(NULL);
+        int w = GetSystemMetrics(SM_CXSCREEN),
+            h = GetSystemMetrics(SM_CYSCREEN),
+            rx = rand() % w;
+        BitBlt(hdc, rx, 10, 100, h, hdc, rx, 0, SRCERASE);
+        ReleaseDC(NULL, hdc);
+    }
 }
-DWORD WINAPI payload6(LPVOID lpParam) {
-	HDC hdc = GetDC(0);
-	int w = GetSystemMetrics(0);
-	int h = GetSystemMetrics(1);
-	while (true)
-	{
-		hdc = GetDC(0);
-		BitBlt(hdc, 1, 1, w, h, hdc, 0, 0, SRCINVERT);
-		BitBlt(hdc, -0.9, -0.9, w, h, hdc, 0, 0, SRCINVERT);
-		ReleaseDC(GetDesktopWindow(), hdc);
-		DeleteDC(hdc);
-		Sleep(10);
-	}
-
+DWORD WINAPI shader7(LPVOID lpParam) {
+    HDC hdc = GetDC(0);
+    int w = GetSystemMetrics(0);
+    int h = GetSystemMetrics(1);
+    while (true)
+    {
+        hdc = GetDC(0);
+        BitBlt(hdc, 0.9, 0.9, w, h, hdc, 0, 0, SRCINVERT);
+        BitBlt(hdc, -1, -1, w, h, hdc, 0, 0, SRCINVERT);
+        ReleaseDC(GetDesktopWindow(), hdc);
+        DeleteDC(hdc);
+    }
 }
-DWORD WINAPI payload7(LPVOID lpParam) {
-	HDC hdc = GetDC(0);
-	int w = GetSystemMetrics(0);
-	int h = GetSystemMetrics(1);
-	while (true)
-	{
-		hdc = GetDC(0);
-		BitBlt(hdc, 15, 15, w, h, hdc, 0, 0, SRCINVERT);
-		BitBlt(hdc, -15, -15, w, h, hdc, 0, 0, SRCINVERT);
-		ReleaseDC(GetDesktopWindow(), hdc);
-		DeleteDC(hdc);
-		Sleep(10);
-	}
-
+DWORD WINAPI shader8(LPVOID lpParam) {
+    HDC desk;
+    int sw, sh;
+    while (1) {
+        desk = GetDC(0);
+        sw = GetSystemMetrics(0);
+        sh = GetSystemMetrics(1);
+        StretchBlt(desk, 0, -20, sw, sh + 40, desk, 0, 0, sw, sh, SRCINVERT);
+        ReleaseDC(0, desk);
+        Sleep(4);
+    }
 }
-VOID WINAPI sound1() {
-    HWAVEOUT hWaveOut = 0;
-    WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
-    waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-    char buffer[8000 * 30] = {};
-    for (DWORD t = 0; t < sizeof(buffer); ++t)
-        buffer[t] = static_cast<char>(9 * t & t >> 4 | 5 * t & t >> 7 | 3 * t & t >> 10);
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
-    WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
-    waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutUnprepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutClose(hWaveOut);
+    if (MessageBoxW(NULL, L"This is a mpq-GDI.exe.\r\nRun?", L"mpq-GDI.exe by prgbquad-370", MB_YESNO | MB_ICONEXCLAMATION) == IDNO)
+    {
+        ExitProcess(0);
+    }
+    else
+    {
+        if (MessageBoxW(NULL, L"Are you sure?", L"Final warning - mpq-GDI.exe", MB_YESNO | MB_ICONEXCLAMATION) == IDNO)
+        {
+            ExitProcess(0);
+        }
+        else
+
+            Sleep(1000);
+            HANDLE hThread1 = CreateThread(NULL, 0, shader1, NULL, 0, NULL);
+            Sleep(30000);
+            TerminateThread(hThread1, 0);
+            CloseHandle(hThread1);
+            Sleep(100);
+            HANDLE hThread2 = CreateThread(NULL, 0, shader2, NULL, 0, NULL);
+            Sleep(30000);
+            TerminateThread(hThread2, 0);
+            CloseHandle(hThread2);
+            Sleep(100);
+            HANDLE hThread3 = CreateThread(NULL, 0, shader3, NULL, 0, NULL);
+            Sleep(30000);
+            TerminateThread(hThread3, 0);
+            CloseHandle(hThread3);
+            Sleep(100);
+            HANDLE hThread4 = CreateThread(NULL, 0, shader4, NULL, 0, NULL);
+            Sleep(30000);
+            TerminateThread(hThread4, 0);
+            CloseHandle(hThread4);
+            Sleep(100);
+            HANDLE hThread5 = CreateThread(NULL, 0, shader5, NULL, 0, NULL);
+            Sleep(40000);
+            TerminateThread(hThread5, 0);
+            CloseHandle(hThread5);
+            Sleep(100);
+            HANDLE hThread6 = CreateThread(NULL, 0, shader6, NULL, 0, NULL);
+            Sleep(30000);
+            TerminateThread(hThread6, 0);
+            CloseHandle(hThread6);
+            Sleep(100);
+            HANDLE hThread7 = CreateThread(NULL, 0, shader7, NULL, 0, NULL);
+            Sleep(30000);
+            TerminateThread(hThread7, 0);
+            CloseHandle(hThread7);
+            Sleep(100);
+            HANDLE hThread8 = CreateThread(NULL, 0, shader8, NULL, 0, NULL);
+            Sleep(30000);
+    }
 }
-VOID WINAPI sound2() {
-    HWAVEOUT hWaveOut = 0;
-    WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
-    waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-    char buffer[8000 * 30] = {};
-    for (DWORD t = 0; t < sizeof(buffer); ++t)
-        buffer[t] = static_cast<char>(t % 25 - (t >> 2 | 15 * t | t % 227) - t >> 3 | (t >> 10 & 1663 * (t << 5) | (t >> 3) % 1544) / (t % 17 | t % 2048 | 1)) & 255;
-
-    WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
-    waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutUnprepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutClose(hWaveOut);
-}
-VOID WINAPI sound3() {
-    HWAVEOUT hWaveOut = 0;
-    WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
-    waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-    char buffer[8000 * 30] = {};
-    for (DWORD t = 0; t < sizeof(buffer); ++t)
-        buffer[t] = static_cast<char>((t >> 6 | t << 1) + (t >> 5 | t << 3 | t >> 3) | t >> 2 | t << 1);
-
-    WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
-    waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutUnprepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutClose(hWaveOut);
-}
-VOID WINAPI sound4() {
-    HWAVEOUT hWaveOut = 0;
-    WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
-    waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-    char buffer[8000 * 30] = {};
-    for (DWORD t = 0; t < sizeof(buffer); ++t)
-        buffer[t] = static_cast<char>(t * (t ^ t + (t >> 15 | 1) ^ (t - 1280 ^ t) >> 10));
-
-    WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
-    waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutUnprepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutClose(hWaveOut);
-}
-VOID WINAPI sound6() {
-    HWAVEOUT hWaveOut = 0;
-    WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
-    waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-    char buffer[8000 * 30] = {};
-    for (DWORD t = 0; t < sizeof(buffer); ++t)
-        buffer[t] = static_cast<char>(t + (t & t ^ t >> 6) - t * (t >> 9 & (t % 16 ? 2 : 6) & t >> 9));
-
-    WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
-    waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutUnprepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutClose(hWaveOut);
-}
-VOID WINAPI sound7() {
-    HWAVEOUT hWaveOut = 0;
-    WAVEFORMATEX wfx = { WAVE_FORMAT_PCM, 1, 8000, 8000, 1, 8, 0 };
-    waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
-    char buffer[8000 * 30] = {};
-    for (DWORD t = 0; t < sizeof(buffer); ++t)
-        buffer[t] = static_cast<char>(t & t >> 6) + (t | t >> 8) + (t | t >> 7) + (t | t >> 9);
-
-    WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
-    waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutWrite(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutUnprepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
-    waveOutClose(hWaveOut);
-}
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
-	if (MessageBoxW(NULL, L"This is a mpq-GDI.exe.\r\nRun?", L"mpq-GDI.exe by prgbquad-370", MB_YESNO | MB_ICONEXCLAMATION) == IDNO)
-	{
-		ExitProcess(0);
-	}
-	else
-	{
-		if (MessageBoxW(NULL, L"Are you sure?", L"Final warning - mpq-GDI.exe", MB_YESNO | MB_ICONEXCLAMATION) == IDNO)
-		{
-			ExitProcess(0);
-		}
-		else
-
-	Sleep(1000);
-        HANDLE P1 = CreateThread(0, 0, payload0, 0, 0, 0);
-	Sleep(30000);
-	TerminateThread(P1, 0);
-	CloseHandle(P1);
-	Sleep(100);
-	HANDLE P2 = CreateThread(0, 0, payload1, 0, 0, 0);
-	Sleep(30000);
-	TerminateThread(P2, 0);
-	CloseHandle(P2);
-	Sleep(100);
-	HANDLE P3 = CreateThread(0, 0, payload2, 0, 0, 0);
-	Sleep(30000);
-	TerminateThread(P3, 0);
-	CloseHandle(P3);
-	Sleep(100);
-	HANDLE P4 = CreateThread(0, 0, payload3, 0, 0, 0);
-	Sleep(30000);
-	TerminateThread(P4, 0);
-	CloseHandle(P4);
-	Sleep(100);
-	HANDLE P5 = CreateThread(0, 0, payload4, 0, 0, 0);
-	Sleep(40000);
-	TerminateThread(P5, 0);
-	CloseHandle(P5);
-	Sleep(100);
-	HANDLE P6 = CreateThread(0, 0, payload5, 0, 0, 0);
-	Sleep(30000);
-	TerminateThread(P6, 0);
-	CloseHandle(P6);
-	Sleep(100);
-	HANDLE P7 = CreateThread(0, 0, payload6, 0, 0, 0);
-	Sleep(30000);
-	TerminateThread(P7, 0);
-	CloseHandle(P7);
-	Sleep(100);
-	HANDLE P8 = CreateThread(0, 0, payload7, 0, 0, 0);
-	Sleep(30000);
-	TerminateThread(P8, 0);
-	CloseHandle(P8);
-	Sleep(100);
-	}
-}
-
-

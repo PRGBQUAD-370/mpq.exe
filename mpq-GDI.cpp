@@ -8,6 +8,12 @@
 #define _USE_MATH_DEFINES 1
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
+VOID WINAPI Initialize(VOID) {
+	HMODULE hModUser32 = LoadLibraryW(L"user32.dll");
+	BOOL(WINAPI * SetProcessDPIAware)(VOID) = (BOOL(WINAPI*)(VOID))GetProcAddress(hModUser32, "SetProcessDPIAware");
+	if (SetProcessDPIAware) SetProcessDPIAware();
+	FreeLibrary(hModUser32);
+}
 typedef union _RGBQUAD {
     COLORREF rgb;
     struct {
@@ -136,7 +142,9 @@ DWORD WINAPI shader8(LPVOID lpParam) {
 }
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
-    if (MessageBoxW(NULL, L"This is a mpq-GDI.exe.\r\nRun?", L"mpq-GDI.exe by prgbquad-370", MB_YESNO | MB_ICONEXCLAMATION) == IDNO)
+	Initialize();
+
+    if (MessageBoxW(NULL, L"This is a mpq-GDI.exe,\r\nRun?", L"mpq-GDI.exe by prgbquad-370", MB_YESNO | MB_ICONEXCLAMATION) == IDNO)
     {
         ExitProcess(0);
     }

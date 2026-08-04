@@ -9,6 +9,12 @@
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
+VOID WINAPI Initialize(VOID) {
+	HMODULE hModUser32 = LoadLibraryW(L"user32.dll");
+	BOOL(WINAPI * SetProcessDPIAware)(VOID) = (BOOL(WINAPI*)(VOID))GetProcAddress(hModUser32, "SetProcessDPIAware");
+	if (SetProcessDPIAware) SetProcessDPIAware();
+	FreeLibrary(hModUser32);
+}
 typedef union _RGBQUAD {
     COLORREF rgb;
     struct {
@@ -221,7 +227,9 @@ VOID WINAPI sound7() {
 }
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
-    if (MessageBoxW(NULL, L"This is a mpq.exe.\r\nRun?", L"mpq.exe by prgbquad-370", MB_YESNO | MB_ICONEXCLAMATION) == IDNO)
+	Initialize();
+
+    if (MessageBoxW(NULL, L"This is a mpq.exe,\r\nRun?", L"mpq.exe by prgbquad-370", MB_YESNO | MB_ICONEXCLAMATION) == IDNO)
     {
         ExitProcess(0);
     }

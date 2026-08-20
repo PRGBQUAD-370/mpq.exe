@@ -116,16 +116,14 @@ DWORD WINAPI shader6(LPVOID lpParam) {
     }
 }
 DWORD WINAPI shader7(LPVOID lpParam) {
-    HDC hdc = GetDC(0);
+    HDC hdc;
     int w = GetSystemMetrics(0);
     int h = GetSystemMetrics(1);
-    while (true)
-    {
+    while (1) {
         hdc = GetDC(0);
-        BitBlt(hdc, 0.9, 0.9, w, h, hdc, 0, 0, SRCINVERT);
-        BitBlt(hdc, -1, -1, w, h, hdc, 0, 0, SRCINVERT);
-        ReleaseDC(GetDesktopWindow(), hdc);
-        DeleteDC(hdc);
+        BitBlt(hdc, rand() % 2, rand() % 2, w, h, hdc, rand() % 2, rand() % 2, SRCERASE);
+        Sleep(10);
+        ReleaseDC(0, hdc);
     }
 }
 DWORD WINAPI shader8(LPVOID lpParam) {

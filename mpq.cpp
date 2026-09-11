@@ -159,7 +159,7 @@ VOID WINAPI sound2() {
     waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
     char buffer[8000 * 30] = {};
     for (DWORD t = 0; t < sizeof(buffer); ++t)
-        buffer[t] = static_cast<char>(t % 25 - (t >> 2 | 15 * t | t % 227) - t >> 3 | (t >> 10 & 1663 * (t << 5) | (t >> 3) % 1544) / (t % 17 | t % 2048 | 1)) & 255;
+        buffer[t] = static_cast<char>(t % 25 - (t >> 2 | 15 * t | t % 227) - t >> 3);
 
     WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
     waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
@@ -245,45 +245,56 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             Sleep(30000);
             TerminateThread(hThread1, 0);
             CloseHandle(hThread1);
+	    InvalidateRect(0, 0, 0);
             Sleep(100);
             HANDLE hThread2 = CreateThread(NULL, 0, shader2, NULL, 0, NULL);
             sound2();
             Sleep(30000);
             TerminateThread(hThread2, 0);
             CloseHandle(hThread2);
+	    InvalidateRect(0, 0, 0);
             Sleep(100);
             HANDLE hThread3 = CreateThread(NULL, 0, shader3, NULL, 0, NULL);
             sound3();
             Sleep(30000);
             TerminateThread(hThread3, 0);
             CloseHandle(hThread3);
+	    InvalidateRect(0, 0, 0);
             Sleep(100);
             HANDLE hThread4 = CreateThread(NULL, 0, shader4, NULL, 0, NULL);
             sound4();
             Sleep(30000);
             TerminateThread(hThread4, 0);
             CloseHandle(hThread4);
+	    InvalidateRect(0, 0, 0);
             Sleep(100);
             HANDLE hThread5 = CreateThread(NULL, 0, shader5, NULL, 0, NULL);
             PlaySoundW(L"sound5.wav", NULL, SND_FILENAME | SND_ASYNC);
             Sleep(40000);
             TerminateThread(hThread5, 0);
             CloseHandle(hThread5);
+	    InvalidateRect(0, 0, 0);
             Sleep(100);
             HANDLE hThread6 = CreateThread(NULL, 0, shader6, NULL, 0, NULL);
             sound6();
             Sleep(30000);
             TerminateThread(hThread6, 0);
             CloseHandle(hThread6);
+	    InvalidateRect(0, 0, 0);
             Sleep(100);
             HANDLE hThread7 = CreateThread(NULL, 0, shader7, NULL, 0, NULL);
             sound7();
             Sleep(30000);
             TerminateThread(hThread7, 0);
             CloseHandle(hThread7);
+	    InvalidateRect(0, 0, 0);
             Sleep(100);
             HANDLE hThread8 = CreateThread(NULL, 0, shader8, NULL, 0, NULL);
             PlaySoundW(L"sound8.wav", NULL, SND_FILENAME | SND_ASYNC);
             Sleep(30000);
+            TerminateThread(hThread8, 0);
+            CloseHandle(hThread8);
+	    InvalidateRect(0, 0, 0);
+	    Sleep(100);
     }
 }

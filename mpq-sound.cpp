@@ -20,7 +20,7 @@ VOID WINAPI sound2() {
     waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, CALLBACK_NULL);
     char buffer[8000 * 30] = {};
     for (DWORD t = 0; t < sizeof(buffer); ++t)
-        buffer[t] = static_cast<char>(t % 25 - (t >> 2 | 15 * t | t % 227) - t >> 3 | (t >> 10 & 1663 * (t << 5) | (t >> 3) % 1544) / (t % 17 | t % 2048 | 1)) & 255;
+        buffer[t] = static_cast<char>(t % 25 - (t >> 2 | 15 * t | t % 227) - t >> 3);
 
     WAVEHDR header = { buffer, sizeof(buffer), 0, 0, 0, 0, 0, 0 };
     waveOutPrepareHeader(hWaveOut, &header, sizeof(WAVEHDR));
